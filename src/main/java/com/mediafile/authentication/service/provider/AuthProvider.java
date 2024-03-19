@@ -4,6 +4,7 @@
  */
 package com.mediafile.authentication.service.provider;
 
+import com.mediafile.authentication.service.repository.AuthRepository;
 import com.mediafile.rmi.classes.Response;
 import com.mediafile.rmi.classes.User;
 import com.mediafile.rmi.classes.args.LoginArgs;
@@ -16,6 +17,12 @@ import java.rmi.RemoteException;
  * @author 000430063
  */
 public class AuthProvider implements IAuthProvider {
+    
+    private AuthRepository repositorio;
+    
+    public AuthProvider() {
+        this.repositorio = new AuthRepository();
+    }
 
     @Override
     public Response<Boolean> Auth(String string) throws RemoteException {
@@ -23,7 +30,7 @@ public class AuthProvider implements IAuthProvider {
     }
 
     @Override
-    public Response<User> GetUser(String string) throws RemoteException {
+    public Response<User> GetUser(String userId) throws RemoteException {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
