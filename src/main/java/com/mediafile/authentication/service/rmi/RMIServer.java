@@ -11,6 +11,9 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -34,7 +37,12 @@ public class RMIServer extends Thread {
     public void run() {
         System.setProperty("java.rmi.server.hostname", this.host);
         
-        this.songProvider = new AuthProvider();
+        try {
+            this.songProvider = new AuthProvider();
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(RMIServer.class.getName()).log(Level.SEVERE, null, ex);
+            return;
+        }
         
         try {
             IAuthProvider stub = (IAuthProvider) UnicastRemoteObject.exportObject(songProvider, this.port);

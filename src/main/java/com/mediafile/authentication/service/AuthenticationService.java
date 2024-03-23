@@ -13,7 +13,17 @@ import com.mediafile.authentication.service.rmi.RMIServer;
 public class AuthenticationService {
 
     public static void main(String[] args) {
-        RMIServer server = new RMIServer("localhost", 3000);
+        String host = System.getenv("HOST");
+        String port = System.getenv("PORT");
+        
+        if(host == null) {
+            host = "localhost";
+        }
+        if(port == null) {
+            port = "3000";
+        }
+        
+        RMIServer server = new RMIServer(host, Integer.parseInt(port));
         server.start();
     }
 }
