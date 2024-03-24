@@ -4,7 +4,10 @@
 
 package com.mediafile.authentication.service;
 
+import com.mediafile.authentication.service.provider.AuthProvider;
+import com.mediafile.authentication.service.repository.AuthRepository;
 import com.mediafile.authentication.service.rmi.RMIServer;
+import com.mediafile.rmi.interfaces.IAuthProvider;
 
 /**
  *
@@ -12,9 +15,13 @@ import com.mediafile.authentication.service.rmi.RMIServer;
  */
 public class AuthenticationService {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         String host = System.getenv("HOST");
         String port = System.getenv("PORT");
+        
+        String mariaCs = System.getenv("MARIA_CONNECTION_STRING");
+        String mariaUser = System.getenv("MARIA_USER");
+        String mariaPass = System.getenv("MARIA_PASSWORD");
         
         if(host == null) {
             host = "localhost";
@@ -23,7 +30,12 @@ public class AuthenticationService {
             port = "3000";
         }
         
-        RMIServer server = new RMIServer(host, Integer.parseInt(port));
+        AuthRepository repository = new AuthRepository(mariaCs, mariaUser, mariaPass);
+        
+        IAuthProvider authProvider = new AuthProvider(repository);
+        
+        RMIServer server = new RMIServer(authProvider, host, Integer.parseInt(port));
+        
         server.start();
     }
 }
