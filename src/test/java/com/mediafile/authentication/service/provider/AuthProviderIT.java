@@ -5,18 +5,21 @@
 package com.mediafile.authentication.service.provider;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.mediafile.authentication.service.repository.AuthRepository;
 import com.mediafile.authentication.service.rmi.RMIServer;
 import com.mediafile.rmi.classes.Response;
 import com.mediafile.rmi.classes.User;
 import com.mediafile.rmi.classes.args.LoginArgs;
 import com.mediafile.rmi.classes.args.RegisterArgs;
 import com.mediafile.rmi.interfaces.IAuthProvider;
+import java.net.MalformedURLException;
+import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.sql.SQLException;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -35,14 +38,15 @@ public class AuthProviderIT {
     private static RMIServer server;
     
     @BeforeAll
-    public static void setUpClass() throws RemoteException, NotBoundException {
+    public static void setUpClass() throws ClassNotFoundException, SQLException, NotBoundException, MalformedURLException, RemoteException {
+        String host = "localhost";
+        int port = 3001;
+        
         // Start the server
-        AuthProviderIT.server = new RMIServer("localhost", 3000);
-        server.start();
+        AuthProviderIT.server = new RMIServer(new AuthProvider(new AuthRepository("root", "root")), host, port);
         
         // Start client
-        Registry registry = LocateRegistry.getRegistry("localhost", 3000);
-        AuthProviderIT.authProvider = (IAuthProvider) registry.lookup("AuthProvider");
+        AuthProviderIT.authProvider = (IAuthProvider) Naming.lookup(String.format("rmi://%s:%d/AuthProvider", host, port));
     }
     
     @AfterAll
