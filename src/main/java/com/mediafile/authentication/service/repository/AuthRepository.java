@@ -17,17 +17,25 @@ import java.sql.Statement;
 public class AuthRepository {
     
     static final String JDBC_DRIVER = "org.mariadb.jdbc.Driver";
-    static final String DB_URL = "jdbc:mariadb://localhost:3306/Auth";
-    
-    static final String USER = "root";
-    static final String PASS = "root";
     
     final Connection conn;
     final Statement stmt;
+
+    public AuthRepository (String connectionString, String user, String password) throws Exception {
+        try {
+            Class.forName(JDBC_DRIVER);
+            this.conn = DriverManager.getConnection(connectionString, user, password);
+            this.stmt = conn.createStatement();
+            System.out.println("[rmi-server] connected to mariadb");
+        } catch (ClassNotFoundException | SQLException ex){
+            System.out.println("[rmi-server] cannot connect to mariadb");
+            throw new Exception();
+        }
+    }
     
-    public AuthRepository () throws ClassNotFoundException, SQLException {
+    public AuthRepository (String user, String password) throws ClassNotFoundException, SQLException {
         Class.forName(JDBC_DRIVER);
-        this.conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        this.conn = DriverManager.getConnection("jdbc:mariadb://localhost:3306/", user, password);
         this.stmt = conn.createStatement();
     }
     
