@@ -4,16 +4,12 @@
  */
 package com.mediafile.authentication.service.rmi;
 
-import com.mediafile.authentication.service.provider.AuthProvider;
 import com.mediafile.rmi.interfaces.IAuthProvider;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -22,35 +18,30 @@ import java.util.logging.Logger;
 public class RMIServer extends Thread {
     private final String host;
     private final int port;
-    private IAuthProvider songProvider;
+    private final IAuthProvider authProvider;
     
-    public RMIServer(){
+    public RMIServer(IAuthProvider authProvider){
+        this.authProvider = authProvider;
         this.host = "localhost";
         this.port = 3000;
     }
-    public RMIServer(String host, int port){
+    public RMIServer(IAuthProvider authProvider, String host, int port){
+        this.authProvider = authProvider;
         this.host = host;
         this.port = port;
     }
     
     @Override
     public void run() {
-        System.setProperty("java.rmi.server.hostname", this.host);
-        
         try {
-            this.songProvider = new AuthProvider();
-        } catch (ClassNotFoundException | SQLException ex) {
-            Logger.getLogger(RMIServer.class.getName()).log(Level.SEVERE, null, ex);
-            return;
-        }
-        
-        try {
-            IAuthProvider stub = (IAuthProvider) UnicastRemoteObject.exportObject(songProvider, this.port);
+            System.setProperty("java.rmi.server.hostname", this.host);
+            IAuthProvider stub = (IAuthProvider) UnicastRemoteObject.exportObject(this.authProvider, this.port);
             Registry registry = LocateRegistry.createRegistry(this.port);
             registry.bind("AuthProvider", stub);
-            System.out.println("[server] rmi server started");
+            System.out.println(String.format("[rmi-server] rmi server started on %s:%d", this.host, this.port));
         } catch (AlreadyBoundException | RemoteException ex) {
-            System.out.println("[server] cannot connect to the server");
+            System.out.println("[rmi-server] cannot create the rmi server: " + ex);
+            this.interrupt();
         }
     }
     
