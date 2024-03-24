@@ -11,7 +11,6 @@ import com.mediafile.rmi.classes.args.LoginArgs;
 import com.mediafile.rmi.classes.args.RegisterArgs;
 import com.mediafile.rmi.interfaces.IAuthProvider;
 import java.rmi.RemoteException;
-import java.sql.SQLException;
 
 /**
  *
@@ -21,8 +20,8 @@ public class AuthProvider implements IAuthProvider {
     
     private final AuthRepository repositorio;
     
-    public AuthProvider() throws ClassNotFoundException, SQLException {
-        this.repositorio = new AuthRepository();
+    public AuthProvider(AuthRepository repositorio) {
+        this.repositorio = repositorio;
     }
 
     @Override
