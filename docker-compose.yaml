@@ -8,7 +8,7 @@ services:
     environment:
       - MARIADB_ROOT_PASSWORD=${MARIA_PASSWORD}
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/var/lib/mysql:rw,delegated
     ports:
       - "3306:3306"
     networks:
