@@ -23,7 +23,7 @@
         <dependency>
             <groupId>com.github.atlanta-mediafile</groupId>
             <artifactId>rmi-interfaces</artifactId>
-            <version>0.1.4</version>
+            <version>c9a4854</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

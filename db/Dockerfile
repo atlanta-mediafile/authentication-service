@@ -1,4 +1,4 @@
-FROM mariadb:latest
+FROM mariadb:11.4-rc-jammy
 
 ADD ./create_database.sql /docker-entrypoint-initdb.d
 

@@ -29,8 +29,20 @@ public class AuthenticationService {
         if(port == null) {
             port = "3000";
         }
+        if(mariaUser == null){
+            mariaUser = "root";
+        }
+        if(mariaPass == null){
+            mariaPass = "root";
+        }
         
-        AuthRepository repository = new AuthRepository(mariaCs, mariaUser, mariaPass);
+        AuthRepository repository;
+        
+        if(mariaCs == null) {
+            repository = new AuthRepository(mariaUser, mariaPass);
+        } else {
+            repository = new AuthRepository(mariaCs, mariaUser, mariaPass);
+        }
         
         IAuthProvider authProvider = new AuthProvider(repository);
         
