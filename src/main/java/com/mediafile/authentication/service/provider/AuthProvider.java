@@ -6,18 +6,23 @@ package com.mediafile.authentication.service.provider;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.mediafile.authentication.service.repository.AuthRepository;
+import com.mediafile.authentication.service.utils.ServiceError;
 import com.mediafile.rmi.classes.Response;
 import com.mediafile.rmi.classes.User;
 import com.mediafile.rmi.classes.args.LoginArgs;
 import com.mediafile.rmi.classes.args.RegisterArgs;
 import com.mediafile.rmi.interfaces.IAuthProvider;
+import java.io.UnsupportedEncodingException;
 
 import java.rmi.RemoteException;
 import java.util.Date;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  *
@@ -45,8 +50,8 @@ public class AuthProvider implements IAuthProvider {
         // decodificar el token
         DecodedJWT decoded = JWT.decode(token);
         String userId = decoded.getSubject();
-		try {
-			User user = repositorio.GetUserById(userId);
+	try {
+            User user = repositorio.GetUserById(userId);
             String email = user.getEmail();
             String fullName = user.getFullName();
             try {
@@ -62,13 +67,16 @@ public class AuthProvider implements IAuthProvider {
                 System.out.println("[rmi-server] token verificado: " + jwt.getToken());
                 verifier.verify(token);
                 System.out.println("[rmi-server] token verificado correctamente");
-                return new Response<Boolean>(true);
-            } catch (Exception e) {
-                return new Response<Boolean>(false);
+                return new Response<>(true);
+            } catch (JWTVerificationException | IllegalArgumentException e) {
+                return new Response<>(false);
             }
-		} catch (Exception e) {
-			// regresar un error por usuario no existente
-            return new Response<>(new String[] {"usuario no existente"});
+	} catch (ServiceError e) {
+            // regresar un error por usuario no existente
+            return new Response<>(new String[] {e.getError()});
+        } catch (Exception e) {
+            // regresar un error por usuario no existente
+            return new Response<>(new String[] {"Server error"});
         }
     }
 
@@ -76,9 +84,9 @@ public class AuthProvider implements IAuthProvider {
     @Override
     public Response<User> GetUser(String userId) throws RemoteException {
         try {
-            return new Response<User>(repositorio.GetUserById(userId));
-        } catch (Exception e) {
-            return new Response<>(new String[] {"Ocurrio un error"});
+            return new Response<>(repositorio.GetUserById(userId));
+        } catch (ServiceError e) {
+            return new Response<>(new String[] {e.getError()});
         }
     }
 
@@ -96,24 +104,25 @@ public class AuthProvider implements IAuthProvider {
             if (passwordLogin.equals(passwordUser)) {
                 // generar token con email con jwt
                 String token = JWT.create()
-                        .withSubject(user.getId())
-                        .withClaim("email", email)
-                        .withClaim("username", user.getFullName())
-                        // time to expire of 1 week in seconds
-                        .withIssuedAt(new Date())
-                        .withExpiresAt(new Date(System.currentTimeMillis() + 1000))
-                        // .withExpiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))
-                        .sign(algorithm);
+                    .withSubject(user.getId())
+                    .withClaim("email", email)
+                    .withClaim("username", user.getFullName())
+                    .withIssuedAt(new Date()) // time to expire of 1 week in seconds
+                    .withExpiresAt(new Date(System.currentTimeMillis() + 1000)) // .withExpiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))
+                    .sign(algorithm); 
                 System.out.println("[rmi-server] token generado para usuario logeado: " + token);
-                return new Response<String>(token);
+                return new Response<>(token);
             } else {
                 return new Response<>("contraseña incorrecta");
             }
-        } catch (Exception e) {
-            return new Response<>("Ocurrio un error");
+        } catch (ServiceError e) {
+            // regresar un error por usuario no existente
+            return new Response<>(new String[] {e.getError()});
+        } catch (JWTCreationException | UnsupportedEncodingException | IllegalArgumentException | NoSuchAlgorithmException e) {
+            // regresar un error por usuario no existente
+            return new Response<>(new String[] {"Server error"});
         }
     }
-
 
     // me envian informacion para registrar y me regreso un token
     @Override
@@ -136,12 +145,14 @@ public class AuthProvider implements IAuthProvider {
                     .withExpiresAt(new Date(System.currentTimeMillis() + 7 * 24 * 60 * 60 * 1000))
                     .sign(algorithm);
             System.out.println("[rmi-server] token generado para usuario registrado: " + token);
-            return new Response<String>(token);
+            return new Response<>(token);
         } catch (com.auth0.jwt.exceptions.TokenExpiredException e) {
             System.out.println("[rmi-server] token expirado: " + e.getMessage());
             return new Response<>("El token expiro" + e.getMessage());
-        } catch (Exception e) {
-            return new Response<>("Ocurrio un error");
+        } catch(ServiceError e) {
+            return new Response<>(e.getError());
+        } catch(JWTCreationException | IllegalArgumentException e) {
+            return new Response<>(new String[] {"Server error"});
         }
     }
     
