@@ -8,7 +8,7 @@ services:
     environment:
       - MARIADB_ROOT_PASSWORD=${MARIA_PASSWORD}
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/var/lib/mysql:rw,delegated
     ports:
       - "3306:3306"
     networks:
@@ -20,17 +20,14 @@ services:
     container_name: auth_service
     restart: always
     depends_on: [mariadb]
-    environment: 
-      - HOST=172.20.0.20
+    environment:
+      - HOST=10.154.12.162
       - PORT=3000
       - MARIA_CONNECTION_STRING=jdbc:mariadb://172.20.0.10:3306/Auth
       - MARIA_USER=root
       - MARIA_PASSWORD=${MARIA_PASSWORD}
-    ports:
-      - "0.0.0.0:3000:3000"
-    networks:
-      auth_net:
-        ipv4_address: 172.20.0.20
+      - JAVA_OPTS=-Djava.rmi.server.hostname=10.154.12.162
+    network_mode: "host"
 
 networks:
   auth_net:

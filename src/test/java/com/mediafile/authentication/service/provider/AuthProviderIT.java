@@ -13,11 +13,7 @@ import com.mediafile.rmi.classes.User;
 import com.mediafile.rmi.classes.args.LoginArgs;
 import com.mediafile.rmi.classes.args.RegisterArgs;
 import com.mediafile.rmi.interfaces.IAuthProvider;
-import java.net.MalformedURLException;
 import java.rmi.Naming;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
-import java.sql.SQLException;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -36,12 +32,17 @@ public class AuthProviderIT {
     private static RMIServer server;
     
     @BeforeAll
-    public static void setUpClass() throws ClassNotFoundException, SQLException, NotBoundException, MalformedURLException, RemoteException {
+    public static void setUpClass() throws Exception {
         String host = "localhost";
-        int port = 3001;
+        int port = 3000;
         
         // Start the server
-        AuthProviderIT.server = new RMIServer(new AuthProvider(new AuthRepository("root", "root")), host, port);
+        AuthRepository repository = new AuthRepository("root", "root");
+        AuthProvider provider = new AuthProvider(repository);
+        AuthProviderIT.server = new RMIServer(provider, host, port);
+        AuthProviderIT.server.start();
+        
+        Thread.sleep(1000);
         
         // Start client
         AuthProviderIT.authProvider = (IAuthProvider) Naming.lookup(String.format("rmi://%s:%d/AuthProvider", host, port));
@@ -68,14 +69,14 @@ public class AuthProviderIT {
         // REGISTER
         RegisterArgs regArgs = new RegisterArgs(uuid, "user name", "user2024@gmail.com", "user2024pass");
         Response<String> responseRegister = authProvider.Register(regArgs);
-
-        DecodedJWT decoded = JWT.decode(responseRegister.getData());
-        String userId = decoded.getClaim("userId").asString();
-        String email = decoded.getClaim("email").asString();
-        decoded.getClaim("fullname").asString();
         
         assertTrue(responseRegister.isSuccess());
         assertEquals(0, responseRegister.getErrors().length);
+        
+        DecodedJWT decoded = JWT.decode(responseRegister.getData());
+        String userId = decoded.getClaim("sub").asString();
+        String email = decoded.getClaim("email").asString();
+        decoded.getClaim("fullname").asString();
         assertTrue(userId.matches("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"));
         assertTrue(email.matches("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$"));
         
