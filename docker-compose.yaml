@@ -23,9 +23,7 @@ services:
     environment:
       - HOST=10.154.12.162
       - PORT=3000
-      - MARIA_CONNECTION_STRING=jdbc:mariadb://172.20.0.10:3306/Auth
-      - MARIA_USER=root
-      - MARIA_PASSWORD=${MARIA_PASSWORD}
+      - MARIA_CONNECTION_STRING=jdbc:mariadb://172.20.0.10:3306/Auth?user=root&password=${MARIA_PASSWORD}
       - JAVA_OPTS=-Djava.rmi.server.hostname=10.154.12.162
     network_mode: "host"
 
