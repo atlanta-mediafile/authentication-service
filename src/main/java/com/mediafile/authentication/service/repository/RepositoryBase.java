@@ -10,8 +10,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -49,7 +47,7 @@ public class RepositoryBase {
         this.stmt = conn.createStatement();
     }
     
-    public ResultSet execute(String sql) throws ServiceError, SQLException {
+    public ResultSet execute(String sql) throws SQLException {
         ResultSet rs;
         try {
             if(conn.isClosed() || stmt.isClosed()){
@@ -57,8 +55,8 @@ public class RepositoryBase {
             }
             rs = stmt.executeQuery(sql);
         } catch (SQLException ex) {
-            System.out.println(ex);
-            throw new ServiceError("Server error");
+            System.out.println("[rmi-server] sql exeption: " + ex);
+            throw ex;
         }
         return rs;
     }
