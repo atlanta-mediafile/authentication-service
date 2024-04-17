@@ -37,7 +37,7 @@ public class AuthProviderIT {
         int port = 3000;
         
         // Start the server
-        AuthRepository repository = new AuthRepository("root", "root");
+        AuthRepository repository = new AuthRepository("jdbc:mariadb://localhost:3306/Auth?user=root&password=root");
         AuthProvider provider = new AuthProvider(repository);
         AuthProviderIT.server = new RMIServer(provider, host, port);
         AuthProviderIT.server.start();
@@ -91,7 +91,7 @@ public class AuthProviderIT {
         Response<String> responseLogin = authProvider.Login(new LoginArgs("user2024@gmail.com", "user2024pass"));
         
         DecodedJWT _decoded = JWT.decode(responseRegister.getData());
-        String _userId = _decoded.getClaim("userId").asString();
+        String _userId = _decoded.getClaim("sub").asString();
         String _email = _decoded.getClaim("email").asString();
         decoded.getClaim("fullname").asString();
         
