@@ -20,8 +20,6 @@ public class AuthenticationService {
         String port = System.getenv("PORT");
         
         String mariaCs = System.getenv("MARIA_CONNECTION_STRING");
-        String mariaUser = System.getenv("MARIA_USER");
-        String mariaPass = System.getenv("MARIA_PASSWORD");
         
         if(host == null) {
             host = "localhost";
@@ -29,20 +27,11 @@ public class AuthenticationService {
         if(port == null) {
             port = "3000";
         }
-        if(mariaUser == null){
-            mariaUser = "root";
-        }
-        if(mariaPass == null){
-            mariaPass = "root";
+        if(mariaCs == null){
+            mariaCs = "jdbc:mariadb://localhost:3306/Auth?user=root&password=root";
         }
         
-        AuthRepository repository;
-        
-        if(mariaCs == null) {
-            repository = new AuthRepository(mariaUser, mariaPass);
-        } else {
-            repository = new AuthRepository(mariaCs, mariaUser, mariaPass);
-        }
+        AuthRepository repository = new AuthRepository(mariaCs);
         
         IAuthProvider authProvider = new AuthProvider(repository);
         
