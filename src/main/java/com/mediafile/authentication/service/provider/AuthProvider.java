@@ -108,7 +108,7 @@ public class AuthProvider implements IAuthProvider {
                     .withClaim("email", email)
                     .withClaim("username", user.getFullName())
                     .withIssuedAt(new Date()) // time to expire of 1 week in seconds
-                    .withExpiresAt(new Date(System.currentTimeMillis() + 1000)) // .withExpiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))
+                    .withExpiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))
                     .sign(algorithm); 
                 System.out.println("[rmi-server] token generado para usuario logeado: " + token);
                 return new Response<>(token);

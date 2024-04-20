@@ -39,6 +39,8 @@ public class AuthRepository extends RepositoryBase {
             User user;
             try {
                 user = new User(rs.getString("id"), rs.getString("fullName"), rs.getString("email"), rs.getString("password"));
+                String sqlUpdate = "UPDATE user SET ultimaActividad = NOW() WHERE id = '" + userId + "';";
+                this.execute(sqlUpdate);
             } catch (SQLException ex) {
                 throw new ServiceError("Server error");
             }
@@ -68,6 +70,9 @@ public class AuthRepository extends RepositoryBase {
             User user;
             try {
                 user = new User(rs.getString("id"), rs.getString("fullName"), rs.getString("email"), rs.getString("password"));
+                // se actualiza la fecha de modificacion en la base de datos
+                String sqlUpdate = "UPDATE user SET ultimaActividad = NOW() WHERE email = '" + email + "';";
+                this.execute(sqlUpdate);
             } catch (SQLException ex) {
                 throw new ServiceError("Server error");
             }
@@ -94,7 +99,7 @@ public class AuthRepository extends RepositoryBase {
             // metodo para encriptar contraseña
             String passwordHash = new String(java.util.Base64.getEncoder().encode(MessageDigest.getInstance("SHA-256").digest(pwd.getBytes("UTF-8"))));
             // sql query para insertar un usuario con userId, fullName, email y password
-            String sql = "INSERT INTO User (id, fullName, email, password) VALUES ('" + userId + "', '" + fullName + "', '" + email + "', '" + passwordHash + "');";
+            String sql = "INSERT INTO User (id, fullName, email, password, creationDate, ultimaActividad) VALUES ('" + userId + "', '" + fullName + "', '" + email + "', '" + passwordHash + "',  NOW(), NOW());";
             this.execute(sql);
             System.out.println("[rmi-server] usuario insertado");
         } catch (java.sql.SQLIntegrityConstraintViolationException e) {
