@@ -39,7 +39,7 @@ public class AuthRepository extends RepositoryBase {
             User user;
             try {
                 user = new User(rs.getString("id"), rs.getString("fullName"), rs.getString("email"), rs.getString("password"));
-                String sqlUpdate = "UPDATE user SET ultimaActividad = NOW() WHERE id = '" + userId + "';";
+                String sqlUpdate = "UPDATE User SET ultimaActividad = NOW() WHERE id = '" + userId + "';";
                 this.execute(sqlUpdate);
             } catch (SQLException ex) {
                 throw new ServiceError("Server error");
@@ -71,7 +71,7 @@ public class AuthRepository extends RepositoryBase {
             try {
                 user = new User(rs.getString("id"), rs.getString("fullName"), rs.getString("email"), rs.getString("password"));
                 // se actualiza la fecha de modificacion en la base de datos
-                String sqlUpdate = "UPDATE user SET ultimaActividad = NOW() WHERE email = '" + email + "';";
+                String sqlUpdate = "UPDATE User SET ultimaActividad = NOW() WHERE email = '" + email + "';";
                 this.execute(sqlUpdate);
             } catch (SQLException ex) {
                 throw new ServiceError("Server error");
