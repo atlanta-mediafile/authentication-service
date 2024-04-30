@@ -73,10 +73,10 @@ public class AuthProvider implements IAuthProvider {
             }
 	} catch (ServiceError e) {
             // regresar un error por usuario no existente
-            return new Response<>(new String[] {e.getError()});
+            return new Response<>(new String[] {e.getError()}, false, null);
         } catch (Exception e) {
             // regresar un error por usuario no existente
-            return new Response<>(new String[] {"Server error"});
+            return new Response<>(new String[] {"Server error"}, false, null);
         }
     }
 
@@ -86,7 +86,7 @@ public class AuthProvider implements IAuthProvider {
         try {
             return new Response<>(repositorio.GetUserById(userId));
         } catch (ServiceError e) {
-            return new Response<>(new String[] {e.getError()});
+            return new Response<>(new String[] {e.getError()}, false, null);
         }
     }
 
@@ -117,10 +117,10 @@ public class AuthProvider implements IAuthProvider {
             }
         } catch (ServiceError e) {
             // regresar un error por usuario no existente
-            return new Response<>(new String[] {e.getError()});
+            return new Response<>(new String[] {e.getError()}, false, null);
         } catch (JWTCreationException | UnsupportedEncodingException | IllegalArgumentException | NoSuchAlgorithmException e) {
             // regresar un error por usuario no existente
-            return new Response<>(new String[] {"Server error"});
+            return new Response<>(new String[] {"Server error"}, false, null);
         }
     }
 
@@ -152,7 +152,7 @@ public class AuthProvider implements IAuthProvider {
         } catch(ServiceError e) {
             return new Response<>(e.getError());
         } catch(JWTCreationException | IllegalArgumentException e) {
-            return new Response<>(new String[] {"Server error"});
+            return new Response<>(new String[] {"Server error"}, false, null);
         }
     }
     
